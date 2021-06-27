@@ -9,6 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.jgrapht.Graphs;
+
+import it.polito.tdp.yelp.model.Adiacenza;
 import it.polito.tdp.yelp.model.Business;
 import it.polito.tdp.yelp.model.Review;
 import it.polito.tdp.yelp.model.User;
@@ -191,5 +194,34 @@ public class YelpDao {
 		return result;
 	}
 
+	public List<Adiacenza> getArchi(Map<String, Business> idMap, int anno, String città){
+		String sql ="SELECT r1.business_id as id1, r2.business_id as id2, (AVG (r1.stars)-AVG (r2.stars)) AS peso "
+				+ "FROM reviews r1, reviews r2, business b1, business b2 "
+				+ "WHERE YEAR(r1.review_date)=? AND YEAR(r2.review_date)=YEAR(r1.review_date) "
+				+ "AND b1.business_id = r1.business_id AND b2.business_id = r2.business_id "
+				+ "AND b1.city=b2.city AND b1.city=? " 
+				+ "AND r1.business_id>r2.business_id "
+				+ "GROUP BY r1.business_id,r2.business_id "
+				+ "HAVING peso<>0";
+		
+		List<Adiacenza> result = new LinkedList<Adiacenza>();
+		Connection conn = DBConnect.getConnection();
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, anno);
+			st.setString(2,città);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				if(idMap.get(res.getString("id1"))!=null && idMap.get(res.getString("id2"))!=null)
+				result.add(new Adiacenza( idMap.get(res.getString("id1")), idMap.get(res.getString("id2")), res.getDouble("peso")));
+			}
+				
+			conn.close();
+		}catch(SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return result;
+	}
 
 }
