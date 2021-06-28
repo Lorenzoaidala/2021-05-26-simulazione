@@ -1,9 +1,12 @@
 package it.polito.tdp.yelp.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
@@ -17,6 +20,8 @@ public class Model {
 	private YelpDao dao;
 	private Map<String, Business> idMap;
 	private Graph<Business,DefaultWeightedEdge> grafo;
+	
+	private List<Business> bestPercorso;
 
 	public Model() {
 		dao = new YelpDao();
@@ -73,6 +78,47 @@ public class Model {
 	}
 	public int getNArchi() {
 		return this.grafo.edgeSet().size();
+	}
+	
+	public List<Business> trovaPercorso(Business partenza, Business arrivo, double soglia){
+		List<Business> parziale = new LinkedList<Business>();
+		parziale.add(partenza);
+		cerca(parziale, arrivo, 1, soglia);
+		return this.bestPercorso;
+	}
+	
+	public void cerca(List<Business> parziale, Business arrivo, int livello, double soglia) {
+		//caso terminale
+		Business ultimo = parziale.get(parziale.size()-1);
+		if(ultimo.equals(arrivo)) {
+			if(this.bestPercorso==null) {
+				this.bestPercorso = new ArrayList<Business>(parziale);
+				return;
+			} else if(parziale.size()<this.bestPercorso.size()) {
+				this.bestPercorso = new ArrayList<Business>(parziale);
+				return;
+			}
+		} //trovare i percorsi
+		for(DefaultWeightedEdge e : this.grafo.outgoingEdgesOf(ultimo)) {
+			if(this.grafo.getEdgeWeight(e)>soglia) {
+				
+				Business prossimo = Graphs.getOppositeVertex(this.grafo, e, ultimo);
+				
+				if(!parziale.contains(prossimo)) {
+					parziale.add(prossimo);
+					cerca(parziale,arrivo,livello+1,soglia);
+					parziale.remove(parziale.size()-1);
+				}
+			}
+		}
+		
+	}
+	
+	public List<Business> getLocali(){
+		Set<Business> provvisorio= this.grafo.vertexSet();
+		List<Business> result = new ArrayList<Business>(provvisorio);
+		Collections.sort(result);
+		return result;
 	}
 	
 

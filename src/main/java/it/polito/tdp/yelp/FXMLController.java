@@ -5,6 +5,7 @@
 package it.polito.tdp.yelp;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.yelp.model.Business;
@@ -45,14 +46,33 @@ public class FXMLController {
 	private ComboBox<Integer> cmbAnno; // Value injected by FXMLLoader
 
 	@FXML // fx:id="cmbLocale"
-	private ComboBox<?> cmbLocale; // Value injected by FXMLLoader
+	private ComboBox<Business> cmbLocale; // Value injected by FXMLLoader
 
 	@FXML // fx:id="txtResult"
 	private TextArea txtResult; // Value injected by FXMLLoader
 
 	@FXML
 	void doCalcolaPercorso(ActionEvent event) {
-
+		String input = txtX.getText();
+		Business partenza = cmbLocale.getValue();
+		if(partenza==null)
+			txtResult.setText("Scegli un locale da valutare.");
+		try {
+			Double soglia = Double.parseDouble(input);
+			if(soglia<0 || soglia>1) {
+				txtResult.appendText("Il valore di soglia deve essere compreso fra 0 e 1.");
+			}
+			Business arrivo = model.getLocaleMigliore();
+			List<Business> best = model.trovaPercorso(partenza, arrivo, soglia);
+			for(Business b : best) {
+				txtResult.appendText(b.toString()+"\n");
+			}
+			txtResult.appendText("Passi effettuati: "+best.size()+".\n");
+		}catch(NumberFormatException e) {
+			txtResult.setText("ERRORE - Sono ammessi solo valori numerici nel campo 'soglia'.");
+			throw new RuntimeException(e);
+			
+		}
 	}
 
 	@FXML
@@ -66,6 +86,7 @@ public class FXMLController {
 		}
 		model.creaGrafo(anno, città);
 		txtResult.appendText(String.format("Grafo creato con %d vertici e %d archi.\n", model.getNVertici(), model.getNArchi()));
+		cmbLocale.getItems().addAll(model.getLocali());
 	}
 
 	@FXML
@@ -76,7 +97,7 @@ public class FXMLController {
 		}
 		Business migliore = model.getLocaleMigliore();
 		txtResult.appendText("Il locale migliore per i parametri selezionati è "+migliore.getBusinessName()+"\n");
-		
+
 	}
 
 	@FXML // This method is called by the FXMLLoader when initialization is complete
