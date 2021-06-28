@@ -53,6 +53,7 @@ public class FXMLController {
 
 	@FXML
 	void doCalcolaPercorso(ActionEvent event) {
+		txtResult.clear();
 		String input = txtX.getText();
 		Business partenza = cmbLocale.getValue();
 		if(partenza==null)
@@ -64,10 +65,12 @@ public class FXMLController {
 			}
 			Business arrivo = model.getLocaleMigliore();
 			List<Business> best = model.trovaPercorso(partenza, arrivo, soglia);
-			for(Business b : best) {
-				txtResult.appendText(b.toString()+"\n");
-			}
+			if(best.size()==0)
+				txtResult.setText("Non esiste un percorso.");
+			else {
+				txtResult.appendText(best.toString());
 			txtResult.appendText("Passi effettuati: "+best.size()+".\n");
+			}
 		}catch(NumberFormatException e) {
 			txtResult.setText("ERRORE - Sono ammessi solo valori numerici nel campo 'soglia'.");
 			throw new RuntimeException(e);
