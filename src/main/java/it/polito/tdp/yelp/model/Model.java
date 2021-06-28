@@ -81,6 +81,7 @@ public class Model {
 	}
 	
 	public List<Business> trovaPercorso(Business partenza, Business arrivo, double soglia){
+		this.bestPercorso=null;
 		List<Business> parziale = new LinkedList<Business>();
 		parziale.add(partenza);
 		cerca(parziale, arrivo, 1, soglia);

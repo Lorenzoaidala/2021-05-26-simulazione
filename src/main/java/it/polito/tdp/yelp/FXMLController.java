@@ -64,10 +64,13 @@ public class FXMLController {
 			throw new RuntimeException(e);
 
 		}
-		if(partenza==null)
+		if(partenza==null) {
 			txtResult.setText("Scegli un locale da valutare.");
+			return;
+		}
 		if(soglia<0 || soglia>1) {
 			txtResult.appendText("Il valore di soglia deve essere compreso fra 0 e 1.");
+			return;
 		}
 		Business arrivo = model.getLocaleMigliore();
 		List<Business> best = model.trovaPercorso(partenza, arrivo, soglia);
