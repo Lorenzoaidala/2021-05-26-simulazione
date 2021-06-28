@@ -53,71 +53,78 @@ public class FXMLController {
 
 	@FXML
 	void doCalcolaPercorso(ActionEvent event) {
-		txtResult.clear();
-		String input = txtX.getText();
+		
+		
 		Business partenza = cmbLocale.getValue();
-		if(partenza==null)
-			txtResult.setText("Scegli un locale da valutare.");
+		Double soglia = -1.0;
 		try {
-			Double soglia = Double.parseDouble(input);
-			if(soglia<0 || soglia>1) {
-				txtResult.appendText("Il valore di soglia deve essere compreso fra 0 e 1.");
-			}
-			Business arrivo = model.getLocaleMigliore();
-			List<Business> best = model.trovaPercorso(partenza, arrivo, soglia);
-			if(best.size()==0)
-				txtResult.setText("Non esiste un percorso.");
-			else {
-				txtResult.appendText(best.toString());
-			txtResult.appendText("Passi effettuati: "+best.size()+".\n");
-			}
+			soglia = Double.parseDouble(txtX.getText());
 		}catch(NumberFormatException e) {
 			txtResult.setText("ERRORE - Sono ammessi solo valori numerici nel campo 'soglia'.");
 			throw new RuntimeException(e);
-			
-		}
-	}
 
-	@FXML
-	void doCreaGrafo(ActionEvent event) {
-		txtResult.clear();
-		String città = cmbCitta.getValue();
-		int anno = cmbAnno.getValue();
-		if(cmbCitta.getValue()==null || cmbAnno.getValue()==null) {
-			txtResult.setText("ERRORE - Selezionare una anno ed una città.");
+		}
+		if(partenza==null)
+			txtResult.setText("Scegli un locale da valutare.");
+		if(soglia<0 || soglia>1) {
+			txtResult.appendText("Il valore di soglia deve essere compreso fra 0 e 1.");
+		}
+		Business arrivo = model.getLocaleMigliore();
+		List<Business> best = model.trovaPercorso(partenza, arrivo, soglia);
+		if(best.size()==0) {
+			txtResult.setText("Non esiste un percorso.");
+		return;
+		}
+		else {
+			txtResult.appendText(best.toString());
+			txtResult.appendText("Passi effettuati: "+best.size()+".\n");
 			return;
 		}
-		model.creaGrafo(anno, città);
-		txtResult.appendText(String.format("Grafo creato con %d vertici e %d archi.\n", model.getNVertici(), model.getNArchi()));
-		cmbLocale.getItems().addAll(model.getLocali());
-	}
+	
+	
 
-	@FXML
-	void doLocaleMigliore(ActionEvent event) {
-		if(cmbCitta.getValue()==null || cmbAnno.getValue()==null) {
-			txtResult.setText("ERRORE - Selezionare una anno ed una città.");
-			return;
-		}
-		Business migliore = model.getLocaleMigliore();
-		txtResult.appendText("Il locale migliore per i parametri selezionati è "+migliore.getBusinessName()+"\n");
+}
 
+@FXML
+void doCreaGrafo(ActionEvent event) {
+	txtResult.clear();
+	String città = cmbCitta.getValue();
+	int anno = cmbAnno.getValue();
+	if(cmbCitta.getValue()==null || cmbAnno.getValue()==null) {
+		txtResult.setText("ERRORE - Selezionare una anno ed una città.");
+		return;
 	}
+	model.creaGrafo(anno, città);
+	txtResult.appendText(String.format("Grafo creato con %d vertici e %d archi.\n", model.getNVertici(), model.getNArchi()));
+	cmbLocale.getItems().addAll(model.getLocali());
+}
 
-	@FXML // This method is called by the FXMLLoader when initialization is complete
-	void initialize() {
-		assert btnCreaGrafo != null : "fx:id=\"btnCreaGrafo\" was not injected: check your FXML file 'Scene.fxml'.";
-		assert btnLocaleMigliore != null : "fx:id=\"btnLocaleMigliore\" was not injected: check your FXML file 'Scene.fxml'.";
-		assert btnPercorso != null : "fx:id=\"btnPercorso\" was not injected: check your FXML file 'Scene.fxml'.";
-		assert cmbCitta != null : "fx:id=\"cmbCitta\" was not injected: check your FXML file 'Scene.fxml'.";
-		assert txtX != null : "fx:id=\"txtX\" was not injected: check your FXML file 'Scene.fxml'.";
-		assert cmbAnno != null : "fx:id=\"cmbAnno\" was not injected: check your FXML file 'Scene.fxml'.";
-		assert cmbLocale != null : "fx:id=\"cmbLocale\" was not injected: check your FXML file 'Scene.fxml'.";
-		assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
+@FXML
+void doLocaleMigliore(ActionEvent event) {
+	if(cmbCitta.getValue()==null || cmbAnno.getValue()==null) {
+		txtResult.setText("ERRORE - Selezionare una anno ed una città.");
+		return;
 	}
+	Business migliore = model.getLocaleMigliore();
+	txtResult.appendText("Il locale migliore per i parametri selezionati è "+migliore.getBusinessName()+"\n");
 
-	public void setModel(Model model) {
-		this.model = model;
-		cmbAnno.getItems().addAll(model.getAnni());
-		cmbCitta.getItems().addAll(model.getCittà());
-	}
+}
+
+@FXML // This method is called by the FXMLLoader when initialization is complete
+void initialize() {
+	assert btnCreaGrafo != null : "fx:id=\"btnCreaGrafo\" was not injected: check your FXML file 'Scene.fxml'.";
+	assert btnLocaleMigliore != null : "fx:id=\"btnLocaleMigliore\" was not injected: check your FXML file 'Scene.fxml'.";
+	assert btnPercorso != null : "fx:id=\"btnPercorso\" was not injected: check your FXML file 'Scene.fxml'.";
+	assert cmbCitta != null : "fx:id=\"cmbCitta\" was not injected: check your FXML file 'Scene.fxml'.";
+	assert txtX != null : "fx:id=\"txtX\" was not injected: check your FXML file 'Scene.fxml'.";
+	assert cmbAnno != null : "fx:id=\"cmbAnno\" was not injected: check your FXML file 'Scene.fxml'.";
+	assert cmbLocale != null : "fx:id=\"cmbLocale\" was not injected: check your FXML file 'Scene.fxml'.";
+	assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
+}
+
+public void setModel(Model model) {
+	this.model = model;
+	cmbAnno.getItems().addAll(model.getAnni());
+	cmbCitta.getItems().addAll(model.getCittà());
+}
 }

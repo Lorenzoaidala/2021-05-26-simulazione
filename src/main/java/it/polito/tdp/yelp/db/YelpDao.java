@@ -143,7 +143,7 @@ public class YelpDao {
 	}
 	
 	public List<String> getCities(){
-		String sql ="SELECT DISTINCT city FROM business";
+		String sql ="SELECT DISTINCT city FROM business ORDER BY city";
 		List<String> result = new LinkedList<String>();
 		Connection conn = DBConnect.getConnection();
 		try {
